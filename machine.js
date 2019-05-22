@@ -21,22 +21,6 @@ const machineUrl = (machine) => {
   return machinesUrl() + "/" + machine;
 }
 
-//  expression: "(radicle expr)"
-exports.query = (machine, cmd) => {
-  var url = machineUrl(machine) + "/query";
-  return axios.post(url, {
-    expression: cmd
-  })
-}
-
-// expressions: ["(radicle expr)", "(radicle expr)", ...]
-const send = (machine, cmds) => {
-  var url = machineUrl(machine) + "/send";
-  return axios.post(url, {
-    expressions: cmds
-  })
-}
-
 const uuid = () => {
   return uuidv4();
 }
@@ -76,26 +60,53 @@ const signEntity = (entity, machineId) => {
   return Object.assign({}, ordered_e, {":author": keys[":public-key"], ":signature": sig});
 }
 
-// machine: String
-// machineId: String (fe monadic/radicle/issue)
-// cmd: String of radicle command
-// payload: Obj
-exports.sendSignedCommand = (machine, machineId, cmd, payload) => {
-  var sigObj = signEntity(payload, machineId);
-  var cmds = ["(" + cmd + " " + conv.toRadicle(sigObj) + ")"];
-  return send(machine, cmds);
-}
-
-// only works for issue machines updated according to https://github.com/radicle-dev/radicle/pull/629
-// sample payload: {":labels": [], ":comments": [], ":state": ":open", ":body": "testing", ":title": "title testing", ":created-at": "2019-04-26T08:18:48Z", ":modified-at": "2019-04-26T08:18:48Z"}
-exports.sendUnsignedCommand = (machine, machineId, cmd, payload) => {
-  var unsigObj = Object.assign({}, payload, {":machine-id": machineId, ":nonce": uuid(), ":author": ":anonymous"})
-  var cmds = ["(" + cmd + " " + conv.toRadicle(unsigObj) + ")"];
-  return send(machine, cmds);
-}
-
+// TODO: return as Machine with machine id
 // create a new machine. returns the new machine id
-exports.newMachine = () => {
+createMachine = () => {
   var url = machinesUrl() + "/new"
   return axios.post(url)
 }
+
+function Machine(machine, machineId) {
+  this.machine = machine;
+  this.url = machineUrl(machine);
+  this.machineId = machineId;
+}
+
+// expressions: ["(radicle expr)", "(radicle expr)", ...]
+Machine.prototype.send = function(cmds) {
+  var url = this.url + "/send";
+  return axios.post(url, {
+    expressions: cmds
+  })
+}
+
+// only works for issue machines updated according to https://github.com/radicle-dev/radicle/pull/629
+// cmd: String of radicle command
+// payload: Obj
+// The command extends the `send` command for machines that require a nonce.
+Machine.prototype.sendUnsignedCommand = function(cmd, payload) {
+  var unsigObj = Object.assign({}, payload, {":machine-id": this.machineId, ":nonce": uuid(), ":author": ":anonymous"})
+  var cmds = ["(" + cmd + " " + conv.toRadicle(unsigObj) + ")"];
+  return this.send(cmds);
+}
+
+// cmd: String of radicle command
+// payload: Obj
+// The command extends the `send` command for machines that require a nonce and
+// a signature.
+Machine.prototype.sendSignedCommand = function(cmd, payload) {
+  var sigObj = signEntity(payload, this.machineId);
+  var cmds = ["(" + cmd + " " + conv.toRadicle(sigObj) + ")"];
+  return this.send(cmds);
+}
+
+// TODO: add optional payload and wrap in ()
+Machine.prototype.query = function(cmd) {
+  var url = this.url + "/query";
+  return axios.post(url, {
+    expression: cmd
+  })
+}
+
+module.exports = {Machine, createMachine};
