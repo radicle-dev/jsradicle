@@ -84,7 +84,7 @@ Machine.prototype.send = function(cmds) {
 // only works for issue machines updated according to https://github.com/radicle-dev/radicle/pull/629
 // cmd: String of radicle command
 // payload: Obj
-// sample payload: {":labels": [], ":comments": [], ":state": ":open", ":body": "testing", ":title": "title testing", ":created-at": "2019-04-26T08:18:48Z", ":modified-at": "2019-04-26T08:18:48Z"}
+// The command extends the `send` command for machines that require a nonce.
 Machine.prototype.sendUnsignedCommand = function(cmd, payload) {
   var unsigObj = Object.assign({}, payload, {":machine-id": this.machineId, ":nonce": uuid(), ":author": ":anonymous"})
   var cmds = ["(" + cmd + " " + conv.toRadicle(unsigObj) + ")"];
@@ -93,6 +93,8 @@ Machine.prototype.sendUnsignedCommand = function(cmd, payload) {
 
 // cmd: String of radicle command
 // payload: Obj
+// The command extends the `send` command for machines that require a nonce and
+// a signature.
 Machine.prototype.sendSignedCommand = function(cmd, payload) {
   var sigObj = signEntity(payload, this.machineId);
   var cmds = ["(" + cmd + " " + conv.toRadicle(sigObj) + ")"];
