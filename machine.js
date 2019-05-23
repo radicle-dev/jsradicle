@@ -64,13 +64,8 @@ const signEntity = (entity, machineId) => {
 // create a new machine. returns the new machine id
 createMachine = async function() {
   var url = machinesUrl() + "/new"
-  try {
-    var req = await axios.post(url);
-    return req.data.machineId
-  } catch(error) {
-    console.log(error.message);
-    if (error.response) console.log(error.response.data);
-  }
+  var req = await axios.post(url);
+  return req.data.machineId
 }
 
 function Machine(machine, machineId) {
@@ -82,15 +77,10 @@ function Machine(machine, machineId) {
 // cmds: ["(radicle expr)", "(radicle expr)", ...]
 Machine.prototype.send = async function(cmds) {
   var url = this.url + "/send";
-  try {
-    var req = await axios.post(url, {
-      expressions: cmds
-    });
-    return conv.parseRadicle(req.data.results);
-  } catch(error) {
-    console.log(error.message);
-    if (error.response) console.log(error.response.data);
-  }
+  var req = await axios.post(url, {
+    expressions: cmds
+  });
+  return conv.parseRadicle(req.data.results);
 }
 
 // only works for issue machines updated according to https://github.com/radicle-dev/radicle/pull/629
@@ -116,15 +106,10 @@ Machine.prototype.sendSignedCommand = function(cmd, payload) {
 // cmd: "(radicle expr)"
 Machine.prototype.query = async function(cmd) {
   var url = this.url + "/query";
-  try {
-    var req = await axios.post(url, {
-      expression: cmd
-    });
-    return conv.parseRadicle(req.data.result);
-  } catch(error) {
-    console.log(error.message);
-    if (error.response) console.log(error.response.data);
-  }
+  var req = await axios.post(url, {
+    expression: cmd
+  });
+  return conv.parseRadicle(req.data.result);
 }
 
 module.exports = {Machine, createMachine};
