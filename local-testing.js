@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var {Machine, createMachine} = require('./machine.js');
+var Machine = require('./machine.js').Machine;
 
 const success = (res) => {console.log(res)};
 
