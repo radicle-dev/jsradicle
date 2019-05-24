@@ -1,0 +1,29 @@
+{
+  "name": "jsradicle",
+  "version": "0.0.1",
+  "description": "js interface with Radicle machines",
+  "main": "machine.js",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "blakejs": "^1.1.0",
+    "elliptic": "^6.4.1",
+    "ecdsa": "^0.7.0",
+    "jsedn": "^0.4.1",
+    "secp256k1": "^3.6.2",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/radicle-dev/jsradicle.git"
+  },
+  "author": "Merle Breitkreuz <merle@monadic.xyz>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/radicle-dev/jsradicle/issues"
+  },
+  "homepage": "https://github.com/radicle-dev/jsradicle#readme"
+}
