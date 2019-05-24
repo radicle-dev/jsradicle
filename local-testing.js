@@ -1,13 +1,20 @@
 #!/usr/bin/env node
 
-var {Machine, createMachine} = require('./machine.js');
+var Machine = require('./machine.js').Machine;
 
-const request = (req, handler) => {
+const success = (res) => {console.log(res)};
+
+const errorHandler = (error) => {
+  console.log(error.message);
+  if (error.response) console.log(error.response.data);
+}
+
+const request = (req) => {
   req.then(function (response) {
-    handler(response);
+    success(response);
   })
   .catch(function (error) {
-    console.log(error);
+    errorHandler(error);
   });
 }
 
@@ -17,8 +24,7 @@ const run = async () => {
   var machine = new Machine(machine, machineId)
   var payload = {":body": "testing", ":comments": [], ":created-at": "2019-04-26T08:18:48Z", ":labels": [], ":modified-at": "2019-04-26T08:18:48Z", ":state": ":open", ":title": "Testing"};
   var res = machine.sendUnsignedCommand("anonymous-create-issue", payload)
-  var hhh = (re) => {console.log(re)};
-  request(res,hhh);
+  request(res);
 }
 
 run();
